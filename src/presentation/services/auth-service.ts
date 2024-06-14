@@ -1,3 +1,4 @@
+import { BcryptAdapter } from "../../config/bcrypt-adapter";
 import { UserModel } from "../../data/mongo";
 import { CustomError, UserEntity } from "../../domain";
 import { RegisterUserDto } from "../../domain/dtos/auth/register-user.dto";
@@ -13,12 +14,13 @@ export class AuthService {
         
         try {
             const user = await UserModel.create(registerUserDto)
+            user.password = BcryptAdapter.hash(registerUserDto.password)
+
             await user.save()
             
             const userEntity = UserEntity.fromObject(user)
             const {password, ...rest} = userEntity;
            
-            //TODO: Encrypt password
             //TODO: JWT <--- para generar la autenticacion del usuario
             //TODO: Email de confirmacion
 
