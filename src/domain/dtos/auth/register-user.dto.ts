@@ -1,13 +1,13 @@
 import { regularExps } from "../../../config/regular-exp";
 
 export class RegisterUserDto {
-    constructor(
+    private constructor(
         public name: string,
         public email: string,
         public password: string
     ){}
 
-    public static create(object: {[key: string]: any}): [string?, RegisterUserDto?]{
+    static create(object: {[key: string]: any}): [string?, RegisterUserDto?]{
         const { name, email, password } = object;
         if(!name) return ['name is required', undefined]
         if(!email) return ['email is required', undefined]
