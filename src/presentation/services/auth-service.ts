@@ -1,4 +1,4 @@
-import { BcryptAdapter } from "../../config/bcrypt-adapter";
+import { BcryptAdapter, JwtAdapter } from "../../config";
 import { UserModel } from "../../data/mongo";
 import { CustomError, LoginUserDto, UserEntity } from "../../domain";
 import { RegisterUserDto } from "../../domain/dtos/auth/register-user.dto";
@@ -42,9 +42,14 @@ export class AuthService {
 
         const userEntity = UserEntity.fromObject(existsUser)
         const {password, ...rest} = userEntity;
+
+        //TODO: JWT <--- para generar la autenticacion del usuario
+        const token = await JwtAdapter.generateToken({id: existsUser.id, email: existsUser.email})
+        if(!token) throw CustomError.internalServer('Error generating token');
+
         return {
             user: rest,
-            token: 'ABC'
+            token: token,
         }
     }
 }
