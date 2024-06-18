@@ -24,9 +24,12 @@ export class AuthService {
             //TODO: JWT <--- para generar la autenticacion del usuario
             //TODO: Email de confirmacion
 
+            const token = await JwtAdapter.generateToken({id: user.id})
+            if(!token) throw CustomError.internalServer('Error generating token');
+
             return {
                 user: rest,
-                token: 'ABC'
+                token: token
             }
         } catch (error) {
             throw CustomError.internalServer(`${error}`)
@@ -44,7 +47,7 @@ export class AuthService {
         const {password, ...rest} = userEntity;
 
         //TODO: JWT <--- para generar la autenticacion del usuario
-        const token = await JwtAdapter.generateToken({id: existsUser.id, email: existsUser.email})
+        const token = await JwtAdapter.generateToken({id: existsUser.id})
         if(!token) throw CustomError.internalServer('Error generating token');
 
         return {
