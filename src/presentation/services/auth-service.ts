@@ -1,11 +1,11 @@
-import { BcryptAdapter, JwtAdapter } from "../../config";
+import { BcryptAdapter, envs, JwtAdapter } from "../../config";
 import { UserModel } from "../../data/mongo";
-import { CustomError, LoginUserDto, UserEntity } from "../../domain";
-import { RegisterUserDto } from "../../domain/dtos/auth/register-user.dto";
+import { CustomError, LoginUserDto, RegisterUserDto, UserEntity } from "../../domain";
+import { EmailService } from "./email-service";
 
 export class AuthService {
     constructor(
-
+        private readonly emailService : EmailService
     ){}
 
     public async registerUser(registerUserDto: RegisterUserDto) {
@@ -21,8 +21,9 @@ export class AuthService {
             const userEntity = UserEntity.fromObject(user)
             const {password, ...rest} = userEntity;
            
-            //TODO: JWT <--- para generar la autenticacion del usuario
+           
             //TODO: Email de confirmacion
+            await this.sendEmailValidationLink(user.email)
 
             const token = await JwtAdapter.generateToken({id: user.id})
             if(!token) throw CustomError.internalServer('Error generating token');
@@ -54,5 +55,27 @@ export class AuthService {
             user: rest,
             token: token,
         }
+    }
+
+    private async sendEmailValidationLink(email: string) {
+        const token = await JwtAdapter.generateToken({email: email})
+        if(!token) throw CustomError.internalServer('Error generating token');
+
+        const url = `${envs.WEBSERVICE_URL}/auth/validate-email?token=${token}`
+        const html = `
+            <h1>Validate your email</h1>
+            <p>Click the link below to validate your email</p>
+            <a href="${url}">Validate your email ${email}</a>
+        `
+        const options = {
+            to: email,
+            subject: 'Validate your email',
+            htmlBody: html
+        }
+
+        const isSent = await this.emailService.sendEmail(options)
+        if(!isSent) throw CustomError.internalServer('Error sending email');
+
+        return true
     }
 }
