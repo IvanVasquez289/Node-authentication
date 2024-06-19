@@ -14,7 +14,12 @@ export class JwtAdapter {
         })
     }
 
-    static validateToken(token: string) {
-
+    static async validateToken(token: string) {
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, JWT_SEED, (err, payload) => {
+                if(err) return resolve(null);
+                resolve(payload);
+            })
+        })
     }
 }  
