@@ -27,8 +27,13 @@ const productSchema = new mongoose.Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
-        required: true
+        required: true,
     }
 })
 
+productSchema.set('toJSON', {
+    virtuals: true, // coloca el id
+    versionKey: false, // elimina __v
+    transform: function (doc, ret, options) { delete ret._id } // elimina el _id
+})
 export const ProductModel = mongoose.model('Product', productSchema)

@@ -13,7 +13,7 @@ export class ProductService {
         try {
             const product = await ProductModel.create(createProductDto)
             await product.save()
-
+            console.log(product)
             return product
         } catch (error) {
             throw CustomError.internalServer(`${error}`)
@@ -29,7 +29,8 @@ export class ProductService {
                 ProductModel.find()
                     .skip((page - 1) * limit)
                     .limit(limit)
-                    //TODO: populate
+                    .populate('user')
+                    .populate('category')
             ])
 
             return {
