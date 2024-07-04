@@ -1,6 +1,8 @@
 import { UploadedFile } from 'express-fileupload'
 import fs from 'fs'
 import path from 'path'
+import { CustomError } from '../../domain'
+import { UUIDAdapter } from '../../config'
 
 export class FileUploadService {
     constructor(){}
@@ -18,12 +20,20 @@ export class FileUploadService {
     ){
         try {
             const fileExtension = file.mimetype.split('/')[1]
+            if(!validExtensions.includes(fileExtension)){
+                throw CustomError.badRequest(`Invalid file extension: ${fileExtension}, valid extensions: ${validExtensions}`)
+            }
+
             const destination = path.join(__dirname, '../../../', folder)
             this.checkFolder(destination)
 
-            file.mv(destination + `/mi-imagen.${fileExtension}`)
+            const fileName = `${UUIDAdapter.v4()}.${fileExtension}`
+
+            file.mv(`${destination}/${fileName}`)
+            return fileName
         } catch (error) {
             console.log({error})
+            throw error
         }
     }
 
