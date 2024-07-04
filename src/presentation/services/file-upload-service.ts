@@ -32,7 +32,7 @@ export class FileUploadService {
             file.mv(`${destination}/${fileName}`)
             return fileName
         } catch (error) {
-            console.log({error})
+            // console.log({error})
             throw error
         }
     }
