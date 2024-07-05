@@ -23,15 +23,16 @@ export class FileUploadController {
 
         if(!validTypes.includes(type)) return res.status(400).json({ error: `Invalid type: ${type}, valid types: ${validTypes}` })
 
-        if(!req.files || Object.keys(req.files).length === 0) {
-            return res.status(400).json({ error: 'No files were selected' })
-        }
+       
+        //El .file al final es porque asi le pusimos en el body el archivo
+        // const file = req.files.file as UploadedFile
 
-        const file = req.files.file as UploadedFile
+        const file = req.body.files.at(0) as UploadedFile
 
         this.fileUploadService.uploadSingle(file, `/uploads/${type}`)
             .then((data) => res.json(data))
             .catch((error) => this.handleError(error, res));
+
     }
 
     uploadMultipleFiles = (req: Request, res: Response) => {
